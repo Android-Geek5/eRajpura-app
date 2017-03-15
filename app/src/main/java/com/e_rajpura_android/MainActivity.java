@@ -3,31 +3,33 @@ package com.e_rajpura_android;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
 import android.widget.LinearLayout;
+
+import com.e_rajpura_android.Fragment.HomeFragment;
+import com.e_rajpura_android.common.Fragments;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.codetail.animation.ViewAnimationUtils;
 import yalantis.com.sidemenu.interfaces.Resourceble;
 import yalantis.com.sidemenu.interfaces.ScreenShotable;
 import yalantis.com.sidemenu.model.SlideMenuItem;
 import yalantis.com.sidemenu.util.ViewAnimator;
 
-public class MainActivity extends AppCompatActivity implements ViewAnimator.ViewAnimatorListener {
+public class MainActivity extends AppCompatActivity implements ViewAnimator.ViewAnimatorListener,HomeFragment.OnFragmentInteractionListener {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     private List<SlideMenuItem> list = new ArrayList<>();
     private ContentFragment contentFragment;
+    private HomeFragment homeFragment;
     private ViewAnimator viewAnimator;
     private int res = R.mipmap.ic_launcher;
     private LinearLayout linearLayout;
@@ -37,9 +39,10 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        homeFragment= HomeFragment.newInstance("param1","param2");
         contentFragment = ContentFragment.newInstance(R.mipmap.ic_launcher);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_frame, contentFragment)
+                .replace(R.id.content_frame, homeFragment)
                 .commit();
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.setScrimColor(Color.TRANSPARENT);
@@ -54,13 +57,13 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
 
         setActionBar();
         createMenuList();
-        viewAnimator = new ViewAnimator<>(this, list, contentFragment, drawerLayout, this);
+        viewAnimator = new ViewAnimator<>(this, list, homeFragment, drawerLayout, this);
     }
 
     private void createMenuList() {
-        SlideMenuItem menuItem0 = new SlideMenuItem(ContentFragment.CLOSE, R.mipmap.ic_launcher);
+        SlideMenuItem menuItem0 = new SlideMenuItem(Fragments.CLOSE, R.mipmap.ic_launcher);
         list.add(menuItem0);
-        SlideMenuItem menuItem = new SlideMenuItem(ContentFragment.BUILDING, R.mipmap.ic_launcher);
+        SlideMenuItem menuItem = new SlideMenuItem(Fragments.HOME, R.mipmap.ic_launcher);
         list.add(menuItem);
         SlideMenuItem menuItem2 = new SlideMenuItem(ContentFragment.BOOK, R.mipmap.ic_launcher);
         list.add(menuItem2);
@@ -143,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
         animator.setInterpolator(new AccelerateInterpolator());
         animator.setDuration(ViewAnimator.CIRCULAR_REVEAL_ANIMATION_DURATION);
 */
-        findViewById(R.id.content_overlay).setBackgroundDrawable(new BitmapDrawable(getResources(), screenShotable.getBitmap()));
+      //  findViewById(R.id.content_overlay).setBackgroundDrawable(new BitmapDrawable(getResources(), screenShotable.getBitmap()));
         //animator.start();
         ContentFragment contentFragment = ContentFragment.newInstance(this.res);
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, contentFragment).commit();
@@ -153,8 +156,10 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
     @Override
     public ScreenShotable onSwitch(Resourceble slideMenuItem, ScreenShotable screenShotable, int position) {
         switch (slideMenuItem.getName()) {
-            case ContentFragment.CLOSE:
+            case Fragments.CLOSE:
                 return screenShotable;
+            case Fragments.HOME:
+                return replaceHomeFragment(screenShotable);
             default:
                 return replaceFragment(screenShotable, position);
         }
@@ -176,5 +181,18 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
     @Override
     public void addViewToContainer(View view) {
         linearLayout.addView(view);
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
+    private ScreenShotable replaceHomeFragment(ScreenShotable screenShotable)
+    {
+        //findViewById(R.id.content_overlay).setBackgroundDrawable(new BitmapDrawable(getResources(), screenShotable.getBitmap()));
+        HomeFragment homeFragment = HomeFragment.newInstance("param1","param2");
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, homeFragment).commit();
+        return homeFragment;
     }
 }
