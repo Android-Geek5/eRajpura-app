@@ -2,18 +2,22 @@ package com.e_rajpura_android;
 
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.e_rajpura_android.Fragment.CategoryFragment;
+import com.e_rajpura_android.Fragment.ContentFragment;
 import com.e_rajpura_android.Fragment.HomeFragment;
+import com.e_rajpura_android.Fragment.SearchFragment;
 import com.e_rajpura_android.common.Fragments;
 
 import java.util.ArrayList;
@@ -24,7 +28,7 @@ import yalantis.com.sidemenu.interfaces.ScreenShotable;
 import yalantis.com.sidemenu.model.SlideMenuItem;
 import yalantis.com.sidemenu.util.ViewAnimator;
 
-public class MainActivity extends AppCompatActivity implements ViewAnimator.ViewAnimatorListener,HomeFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements ViewAnimator.ViewAnimatorListener,HomeFragment.OnFragmentInteractionListener,CategoryFragment.OnFragmentInteractionListener,SearchFragment.OnFragmentInteractionListener {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     private List<SlideMenuItem> list = new ArrayList<>();
@@ -33,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
     private ViewAnimator viewAnimator;
     private int res = R.mipmap.ic_launcher;
     private LinearLayout linearLayout;
+    public static TextView toolBarTitle;
+
 
 
     @Override
@@ -61,27 +67,26 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
     }
 
     private void createMenuList() {
-        SlideMenuItem menuItem0 = new SlideMenuItem(Fragments.CLOSE, R.mipmap.ic_launcher);
+        SlideMenuItem menuItem0 = new SlideMenuItem(Fragments.CLOSE, R.drawable.cancel);
         list.add(menuItem0);
-        SlideMenuItem menuItem = new SlideMenuItem(Fragments.HOME, R.mipmap.ic_launcher);
+        SlideMenuItem menuItem = new SlideMenuItem(Fragments.HOME, R.drawable.home);
         list.add(menuItem);
-        SlideMenuItem menuItem2 = new SlideMenuItem(ContentFragment.BOOK, R.mipmap.ic_launcher);
+        SlideMenuItem menuItem2 = new SlideMenuItem(Fragments.ADVERTISE, R.drawable.advertise);
         list.add(menuItem2);
-        SlideMenuItem menuItem3 = new SlideMenuItem(ContentFragment.PAINT,R.mipmap.ic_launcher);
+        SlideMenuItem menuItem3 = new SlideMenuItem(Fragments.CATEGORIES,R.drawable.category);
         list.add(menuItem3);
-        SlideMenuItem menuItem4 = new SlideMenuItem(ContentFragment.CASE, R.mipmap.ic_launcher);
+        SlideMenuItem menuItem4 = new SlideMenuItem(Fragments.OFFERS,R.drawable.offers_slide);
         list.add(menuItem4);
-        SlideMenuItem menuItem5 = new SlideMenuItem(ContentFragment.SHOP, R.mipmap.ic_launcher);
+        SlideMenuItem menuItem5 = new SlideMenuItem(Fragments.ABOUTUS,R.drawable.about_us);
         list.add(menuItem5);
-        SlideMenuItem menuItem6 = new SlideMenuItem(ContentFragment.PARTY, R.mipmap.ic_launcher);
+        SlideMenuItem menuItem6 = new SlideMenuItem(Fragments.SEARCH,R.drawable.search_slide);
         list.add(menuItem6);
-        SlideMenuItem menuItem7 = new SlideMenuItem(ContentFragment.MOVIE, R.mipmap.ic_launcher);
-        list.add(menuItem7);
     }
 
 
     private void setActionBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolBarTitle=(TextView) toolbar.findViewById(R.id.toolbar_title);
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -137,7 +142,10 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
                 return super.onOptionsItemSelected(item);
         }
     }
-
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
     private ScreenShotable replaceFragment(ScreenShotable screenShotable, int topPosition) {
         this.res = this.res == R.mipmap.ic_launcher ? R.mipmap.ic_launcher : R.mipmap.ic_launcher;
         View view = findViewById(R.id.content_frame);
@@ -159,7 +167,20 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
             case Fragments.CLOSE:
                 return screenShotable;
             case Fragments.HOME:
-                return replaceHomeFragment(screenShotable);
+                    toolBarTitle.setText(Fragments.HOME);
+                HomeFragment homeFragment = HomeFragment.newInstance("param1","param2");
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, homeFragment).commit();
+                return homeFragment;
+            case Fragments.CATEGORIES:
+                toolBarTitle.setText(Fragments.CATEGORIES);
+                CategoryFragment categoryFragment = CategoryFragment.newInstance("param1","param2");
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, categoryFragment).commit();
+                return categoryFragment;
+            case Fragments.SEARCH:
+                toolBarTitle.setText(Fragments.SEARCH);
+                SearchFragment searchFragment = SearchFragment.newInstance("param1","param2");
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, searchFragment).commit();
+                return searchFragment;
             default:
                 return replaceFragment(screenShotable, position);
         }
@@ -186,13 +207,5 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
     @Override
     public void onFragmentInteraction(Uri uri) {
 
-    }
-
-    private ScreenShotable replaceHomeFragment(ScreenShotable screenShotable)
-    {
-        //findViewById(R.id.content_overlay).setBackgroundDrawable(new BitmapDrawable(getResources(), screenShotable.getBitmap()));
-        HomeFragment homeFragment = HomeFragment.newInstance("param1","param2");
-        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, homeFragment).commit();
-        return homeFragment;
     }
 }
