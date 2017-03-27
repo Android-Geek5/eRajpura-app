@@ -4,11 +4,17 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -38,7 +44,8 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
     private int res = R.mipmap.ic_launcher;
     private LinearLayout linearLayout;
     public static TextView toolBarTitle;
-
+    private Fragment currentFragment;
+    boolean firsTimeSearch=false;
 
 
     @Override
@@ -48,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
         homeFragment= HomeFragment.newInstance("param1","param2");
         contentFragment = ContentFragment.newInstance(R.mipmap.ic_launcher);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_frame, homeFragment)
+                .replace(R.id.content_frame, homeFragment,Fragments.HOME)
                 .commit();
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.setScrimColor(Color.TRANSPARENT);
@@ -59,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
                 drawerLayout.closeDrawers();
             }
         });
-
+        currentFragment=homeFragment;
 
         setActionBar();
         createMenuList();
@@ -144,6 +151,31 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
     }
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+        MenuItem searchViewItem = menu.findItem(R.id.action_search);
+        final SearchView searchViewAndroidActionBar = (SearchView) MenuItemCompat.getActionView(searchViewItem);
+
+        searchViewAndroidActionBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchViewAndroidActionBar.clearFocus();
+                if(!firsTimeSearch)
+                {
+                    firsTimeSearch=true;
+                }
+                doSearch(query);
+                return true;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if(!firsTimeSearch)
+                {
+                    firsTimeSearch=true;
+                }
+                doSearch(newText);
+                return false;
+            }
+        });
+
         return true;
     }
     private ScreenShotable replaceFragment(ScreenShotable screenShotable, int topPosition) {
@@ -169,17 +201,20 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
             case Fragments.HOME:
                     toolBarTitle.setText(Fragments.HOME);
                 HomeFragment homeFragment = HomeFragment.newInstance("param1","param2");
-                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, homeFragment).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, homeFragment,Fragments.HOME).commit();
+                currentFragment=homeFragment;
                 return homeFragment;
             case Fragments.CATEGORIES:
                 toolBarTitle.setText(Fragments.CATEGORIES);
                 CategoryFragment categoryFragment = CategoryFragment.newInstance("param1","param2");
-                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, categoryFragment).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, categoryFragment,Fragments.CATEGORIES).commit();
+                currentFragment=categoryFragment;
                 return categoryFragment;
             case Fragments.SEARCH:
                 toolBarTitle.setText(Fragments.SEARCH);
                 SearchFragment searchFragment = SearchFragment.newInstance("param1","param2");
-                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, searchFragment).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, searchFragment,Fragments.SEARCH).commit();
+                currentFragment=searchFragment;
                 return searchFragment;
             default:
                 return replaceFragment(screenShotable, position);
@@ -208,4 +243,42 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
     public void onFragmentInteraction(Uri uri) {
 
     }
+
+    public void doSearch(String text)
+    {
+        if(firsTimeSearch) {
+            if (currentFragment != null) {
+                if (!currentFragment.getTag().equals(Fragments.SEARCH)) {
+                    toolBarTitle.setText(Fragments.SEARCH);
+                    SearchFragment searchFragment = SearchFragment.newInstance("param1", "param2");
+                    //FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
+                    // fragTransaction.replace(R.id.content_frame,searchFragment);
+                    //fragTransaction.commit();
+                    replaceFragmentCode(currentFragment, searchFragment);
+                }
+            }
+        }
+    }
+    public void replaceFragmentCode(Fragment fromFragment, Fragment toFragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.container,toFragment, toFragment.getClass().getName());
+        transaction.hide(fromFragment);
+        transaction.addToBackStack(toFragment.getClass().getName());
+        transaction.commit();
+    }
+
+    @Override
+    public void onBackPressed(){
+            super.onBackPressed();
+            toolBarTitle.setText(currentFragment.getTag());
+         /*   Fragment reference = null;
+            List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
+        //int size=bottomBar.getMaxItemCount();
+            for (int i = 0; i < fragmentList.size(); i++) {
+            reference = fragmentList.get(i);
+            if (reference != null && reference instanceof HomeFragment) {
+
+            }
+        }*/
+        }
 }
