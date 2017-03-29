@@ -20,10 +20,13 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.e_rajpura_android.Fragment.AboutUsFragment;
+import com.e_rajpura_android.Fragment.AdvertiseFragment;
 import com.e_rajpura_android.Fragment.CategoryFragment;
 import com.e_rajpura_android.Fragment.ContentFragment;
 import com.e_rajpura_android.Fragment.HomeFragment;
 import com.e_rajpura_android.Fragment.SearchFragment;
+import com.e_rajpura_android.Model.Category;
 import com.e_rajpura_android.common.Fragments;
 
 import java.util.ArrayList;
@@ -34,7 +37,9 @@ import yalantis.com.sidemenu.interfaces.ScreenShotable;
 import yalantis.com.sidemenu.model.SlideMenuItem;
 import yalantis.com.sidemenu.util.ViewAnimator;
 
-public class MainActivity extends AppCompatActivity implements ViewAnimator.ViewAnimatorListener,HomeFragment.OnFragmentInteractionListener,CategoryFragment.OnFragmentInteractionListener,SearchFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements ViewAnimator.ViewAnimatorListener,
+        HomeFragment.OnFragmentInteractionListener,CategoryFragment.OnFragmentInteractionListener,
+        SearchFragment.OnFragmentInteractionListener,AdvertiseFragment.OnFragmentInteractionListener,AboutUsFragment.OnFragmentInteractionListener {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     private List<SlideMenuItem> list = new ArrayList<>();
@@ -45,17 +50,17 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
     private LinearLayout linearLayout;
     public static TextView toolBarTitle;
     private Fragment currentFragment;
-    boolean firsTimeSearch=false;
+    LinearLayout rightToolbarLayout;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        homeFragment= HomeFragment.newInstance("param1","param2");
+        homeFragment = HomeFragment.newInstance("param1", "param2");
         contentFragment = ContentFragment.newInstance(R.mipmap.ic_launcher);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_frame, homeFragment,Fragments.HOME)
+                .replace(R.id.content_frame, homeFragment, Fragments.HOME)
                 .commit();
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerLayout.setScrimColor(Color.TRANSPARENT);
@@ -66,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
                 drawerLayout.closeDrawers();
             }
         });
-        currentFragment=homeFragment;
+        currentFragment = homeFragment;
 
         setActionBar();
         createMenuList();
@@ -80,20 +85,22 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
         list.add(menuItem);
         SlideMenuItem menuItem2 = new SlideMenuItem(Fragments.ADVERTISE, R.drawable.advertise);
         list.add(menuItem2);
-        SlideMenuItem menuItem3 = new SlideMenuItem(Fragments.CATEGORIES,R.drawable.category);
+        SlideMenuItem menuItem3 = new SlideMenuItem(Fragments.CATEGORIES, R.drawable.category);
         list.add(menuItem3);
-        SlideMenuItem menuItem4 = new SlideMenuItem(Fragments.OFFERS,R.drawable.offers_slide);
+        SlideMenuItem menuItem4 = new SlideMenuItem(Fragments.OFFERS, R.drawable.offers_slide);
         list.add(menuItem4);
-        SlideMenuItem menuItem5 = new SlideMenuItem(Fragments.ABOUTUS,R.drawable.about_us);
+        SlideMenuItem menuItem5 = new SlideMenuItem(Fragments.ABOUTUS, R.drawable.about_us);
         list.add(menuItem5);
-        SlideMenuItem menuItem6 = new SlideMenuItem(Fragments.SEARCH,R.drawable.search_slide);
+        SlideMenuItem menuItem6 = new SlideMenuItem(Fragments.SEARCH, R.drawable.search_slide);
         list.add(menuItem6);
     }
 
 
     private void setActionBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolBarTitle=(TextView) toolbar.findViewById(R.id.toolbar_title);
+        toolBarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        rightToolbarLayout=(LinearLayout) toolbar.findViewById(R.id.imageView_back2);
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -149,28 +156,37 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
                 return super.onOptionsItemSelected(item);
         }
     }
+
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         MenuItem searchViewItem = menu.findItem(R.id.action_search);
         final SearchView searchViewAndroidActionBar = (SearchView) MenuItemCompat.getActionView(searchViewItem);
 
+        MenuItemCompat.setOnActionExpandListener(searchViewItem,
+                new MenuItemCompat.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                // Do whatever you need
+                return true; // KEEP IT TO TRUE OR IT DOESN'T OPEN !!
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                closeSearch();
+                return true; // OR FALSE IF YOU DIDN'T WANT IT TO CLOSE!
+            }
+        });
+
         searchViewAndroidActionBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 searchViewAndroidActionBar.clearFocus();
-                if(!firsTimeSearch)
-                {
-                    firsTimeSearch=true;
-                }
                 doSearch(query);
                 return true;
             }
+
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(!firsTimeSearch)
-                {
-                    firsTimeSearch=true;
-                }
                 doSearch(newText);
                 return false;
             }
@@ -178,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
 
         return true;
     }
+
     private ScreenShotable replaceFragment(ScreenShotable screenShotable, int topPosition) {
         this.res = this.res == R.mipmap.ic_launcher ? R.mipmap.ic_launcher : R.mipmap.ic_launcher;
         View view = findViewById(R.id.content_frame);
@@ -186,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
         animator.setInterpolator(new AccelerateInterpolator());
         animator.setDuration(ViewAnimator.CIRCULAR_REVEAL_ANIMATION_DURATION);
 */
-      //  findViewById(R.id.content_overlay).setBackgroundDrawable(new BitmapDrawable(getResources(), screenShotable.getBitmap()));
+        //  findViewById(R.id.content_overlay).setBackgroundDrawable(new BitmapDrawable(getResources(), screenShotable.getBitmap()));
         //animator.start();
         ContentFragment contentFragment = ContentFragment.newInstance(this.res);
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, contentFragment).commit();
@@ -199,23 +216,40 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
             case Fragments.CLOSE:
                 return screenShotable;
             case Fragments.HOME:
-                    toolBarTitle.setText(Fragments.HOME);
-                HomeFragment homeFragment = HomeFragment.newInstance("param1","param2");
-                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, homeFragment,Fragments.HOME).commit();
-                currentFragment=homeFragment;
+                toolBarTitle.setText(Fragments.HOME);
+                rightToolbarLayout.setVisibility(View.GONE);
+                HomeFragment homeFragment = HomeFragment.newInstance("param1", "param2");
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, homeFragment, Fragments.HOME).commit();
+                currentFragment = homeFragment;
                 return homeFragment;
             case Fragments.CATEGORIES:
                 toolBarTitle.setText(Fragments.CATEGORIES);
-                CategoryFragment categoryFragment = CategoryFragment.newInstance("param1","param2");
-                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, categoryFragment,Fragments.CATEGORIES).commit();
-                currentFragment=categoryFragment;
+                rightToolbarLayout.setVisibility(View.GONE);
+                CategoryFragment categoryFragment = CategoryFragment.newInstance("param1", "param2");
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, categoryFragment, Fragments.CATEGORIES).commit();
+                currentFragment = categoryFragment;
                 return categoryFragment;
             case Fragments.SEARCH:
                 toolBarTitle.setText(Fragments.SEARCH);
-                SearchFragment searchFragment = SearchFragment.newInstance("param1","param2");
-                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, searchFragment,Fragments.SEARCH).commit();
-                currentFragment=searchFragment;
+                rightToolbarLayout.setVisibility(View.GONE);
+                SearchFragment searchFragment = SearchFragment.newInstance("param1", "param2");
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, searchFragment, Fragments.SEARCH).commit();
+                currentFragment = searchFragment;
                 return searchFragment;
+            case Fragments.ABOUTUS:
+                toolBarTitle.setText(Fragments.ABOUTUS);
+                rightToolbarLayout.setVisibility(View.VISIBLE);
+                AboutUsFragment aboutUsFragment = AboutUsFragment.newInstance("param1", "param2");
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, aboutUsFragment, Fragments.ABOUTUS).commit();
+                currentFragment = aboutUsFragment;
+                return aboutUsFragment;
+            case Fragments.ADVERTISE:
+                toolBarTitle.setText(Fragments.ADVERTISE);
+                rightToolbarLayout.setVisibility(View.VISIBLE);
+                AdvertiseFragment advertiseFragment = AdvertiseFragment.newInstance("param1", "param2");
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, advertiseFragment, Fragments.ADVERTISE).commit();
+                currentFragment = advertiseFragment;
+                return advertiseFragment;
             default:
                 return replaceFragment(screenShotable, position);
         }
@@ -244,41 +278,60 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
 
     }
 
-    public void doSearch(String text)
-    {
-        if(firsTimeSearch) {
+    public void doSearch(String text) {
+        if (text != null && !text.isEmpty()) {
             if (currentFragment != null) {
-                if (!currentFragment.getTag().equals(Fragments.SEARCH)) {
-                    toolBarTitle.setText(Fragments.SEARCH);
-                    SearchFragment searchFragment = SearchFragment.newInstance("param1", "param2");
-                    //FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-                    // fragTransaction.replace(R.id.content_frame,searchFragment);
-                    //fragTransaction.commit();
-                    replaceFragmentCode(currentFragment, searchFragment);
-                }
+                    Fragment reference = null;
+                    List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
+                    for (int i = 0; i < fragmentList.size(); i++) {
+                        reference = fragmentList.get(i);
+                        if(reference!=null)
+                        if (reference instanceof HomeFragment && currentFragment.getTag().equals(Fragments.HOME) ) {
+                            ((HomeFragment) reference).doSearch(text);
+                        }
+                        if (reference instanceof SearchFragment && currentFragment.getTag().equals(Fragments.SEARCH)) {
+                            ((SearchFragment) reference).doSearch(text);
+                        }
+                        if (reference instanceof CategoryFragment && currentFragment.getTag().equals(Fragments.CATEGORIES)) {
+                            ((CategoryFragment) reference).doSearch(text);
+                        }
+                    }
             }
         }
     }
-    public void replaceFragmentCode(Fragment fromFragment, Fragment toFragment) {
+
+    public void replaceFragmentCode(Fragment fromFragment, Fragment toFragment, String tag) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.container,toFragment, toFragment.getClass().getName());
+        transaction.replace(R.id.container, toFragment, tag);
         transaction.hide(fromFragment);
         transaction.addToBackStack(toFragment.getClass().getName());
         transaction.commit();
     }
 
     @Override
-    public void onBackPressed(){
-            super.onBackPressed();
-            toolBarTitle.setText(currentFragment.getTag());
-         /*   Fragment reference = null;
-            List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
-        //int size=bottomBar.getMaxItemCount();
-            for (int i = 0; i < fragmentList.size(); i++) {
-            reference = fragmentList.get(i);
-            if (reference != null && reference instanceof HomeFragment) {
+    public void onBackPressed() {
+        super.onBackPressed();
+        toolBarTitle.setText(currentFragment.getTag());
+    }
 
+    public void closeSearch() {
+        if (currentFragment != null) {
+            Fragment reference = null;
+            List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
+            for (int i = 0; i < fragmentList.size(); i++) {
+                reference = fragmentList.get(i);
+                if(reference!=null)
+                    if (reference instanceof HomeFragment && currentFragment.getTag().equals(Fragments.HOME) ) {
+                        ((HomeFragment) reference).closeSearch();
+                    }
+                if (reference instanceof SearchFragment && currentFragment.getTag().equals(Fragments.SEARCH)) {
+                    ((SearchFragment) reference).closeSearch();
+                }
+                if (reference instanceof CategoryFragment && currentFragment.getTag().equals(Fragments.CATEGORIES)) {
+                    ((CategoryFragment) reference).closeSearch();
+                }
             }
-        }*/
         }
+    }
+
 }

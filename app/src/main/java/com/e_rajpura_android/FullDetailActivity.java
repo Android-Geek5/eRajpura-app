@@ -23,6 +23,7 @@ import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.e_rajpura_android.adapter.OffersAdapter;
@@ -41,7 +42,8 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
     LinearLayoutManager linearLayoutManager;
     List<String> currentOffersList=new ArrayList<>();
     OffersAdapter offersAdapter;
-    LinearLayout offerLayout;
+    LinearLayout offerLayout,backLayout;
+    ScrollView scrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +59,8 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
 
     public void inflateLayout()
     {
+        scrollView=(ScrollView) findViewById(R.id.mainLayout);
+        backLayout=(LinearLayout) findViewById(R.id.imageView_back);
         text_name=(TextView) findViewById(R.id.name);
         text_address=(TextView) findViewById(R.id.address);
         text_info=(TextView) findViewById(R.id.info);
@@ -78,6 +82,7 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
         callLayout.setOnClickListener(this);
         callLayout1.setOnClickListener(this);
         callLayout2.setOnClickListener(this);
+        backLayout.setOnClickListener(this);
 
         offerLayout=(LinearLayout) findViewById(R.id.offer_layout);
         offerLayout.setVisibility(View.GONE);
@@ -92,6 +97,7 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
     {
         retryLayout=(RelativeLayout) findViewById(R.id.retryLayout);
         retryLayout.setVisibility(View.VISIBLE);
+        scrollView.setVisibility(View.GONE);
     }
 
     public void setRating()
@@ -132,6 +138,9 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
                 break;
             case R.id.call2_layout:
                 dialog(false,text_call2.getText().toString());
+                break;
+            case R.id.imageView_back:
+                onBackPressed();
                 break;
         }
     }
@@ -196,5 +205,11 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
         }
         offersAdapter.addTopSearchArrayList(currentOffersList);
         offersAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        FullDetailActivity.this.finish();
     }
 }
