@@ -26,7 +26,6 @@ import com.e_rajpura_android.Fragment.CategoryFragment;
 import com.e_rajpura_android.Fragment.ContentFragment;
 import com.e_rajpura_android.Fragment.HomeFragment;
 import com.e_rajpura_android.Fragment.SearchFragment;
-import com.e_rajpura_android.Model.Category;
 import com.e_rajpura_android.common.Fragments;
 
 import java.util.ArrayList;
@@ -146,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
-    @Override
+    /*@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (drawerToggle.onOptionsItemSelected(item)) {
             return true;
@@ -155,8 +154,21 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
+    }*/
 
+  /*  @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_search:
+
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }*/
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         MenuItem searchViewItem = menu.findItem(R.id.action_search);
@@ -166,32 +178,21 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
                 new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-                // Do whatever you need
+
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.container,new SearchFragment());
+                transaction.addToBackStack(null);
+                transaction.commit();// Do whatever you need
                 return true; // KEEP IT TO TRUE OR IT DOESN'T OPEN !!
             }
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
-                closeSearch();
+
+                //onBackPressed();
                 return true; // OR FALSE IF YOU DIDN'T WANT IT TO CLOSE!
             }
         });
-
-        searchViewAndroidActionBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                searchViewAndroidActionBar.clearFocus();
-                doSearch(query);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                doSearch(newText);
-                return false;
-            }
-        });
-
         return true;
     }
 
@@ -311,7 +312,8 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        toolBarTitle.setText(currentFragment.getTag());
+        Log.e("AA","AA");
+
     }
 
     public void closeSearch() {
@@ -332,6 +334,9 @@ public class MainActivity extends AppCompatActivity implements ViewAnimator.View
                 }
             }
         }
+    }
+    private void apiCheck(){
+
     }
 
 }
