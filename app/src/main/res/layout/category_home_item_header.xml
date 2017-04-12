@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/margin5"
+    android:layout_marginBottom="@dimen/margin3"
+    android:layout_marginLeft="@dimen/margin8"
+    android:layout_marginRight="@dimen/margin8">
+<TextView
+    android:id="@+id/category_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Restuarants"
+    android:textSize="@dimen/text16"
+    android:textStyle="bold"
+    android:gravity="center_vertical"
+    android:textColor="@color/colorPrimary"
+    android:layout_toLeftOf="@+id/view_more"
+    android:layout_alignParentLeft="true"/>
+    <TextView
+        android:id="@+id/view_more"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View More"
+        android:textSize="@dimen/text14"
+        android:gravity="center_vertical"
+        android:textColor="@color/colorPrimary"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"/>
+</RelativeLayout>

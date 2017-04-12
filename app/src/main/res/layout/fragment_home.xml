@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<io.codetail.widget.RevealFrameLayout
+    android:id="@+id/main_container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorAccent">
+    <FrameLayout
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    >
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipe"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+    <ScrollView
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never">
+        <LinearLayout
+            android:id="@+id/main_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="5dp"
+            android:orientation="vertical">
+            <android.support.v7.widget.RecyclerView
+             android:id="@+id/recyclerViewTopSearches"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:overScrollMode="never"
+             android:layout_margin="@dimen/margin3"
+            />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colorGray"
+                />
+        <include
+            android:id="@+id/category_home_item1"
+            layout="@layout/category_home_item_header"
+            />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerViewCategory1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:layout_marginLeft="@dimen/margin5"
+            />
+            <include android:id="@+id/category_home_item2"
+                layout="@layout/category_home_item_header"
+                />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerViewCategory2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                android:layout_marginLeft="@dimen/margin5"
+                />
+            <include android:id="@+id/category_home_item3"
+                layout="@layout/category_home_item_header"
+                />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerViewCategory3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                android:layout_marginLeft="@dimen/margin5"
+                />
+            <include android:id="@+id/category_home_item4"
+                layout="@layout/category_home_item_header"
+                />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerViewCategory4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                android:layout_marginLeft="@dimen/margin5"
+                />
+        </LinearLayout></ScrollView>
+        </android.support.v4.widget.SwipeRefreshLayout>
+
+</FrameLayout>
+    </io.codetail.widget.RevealFrameLayout>

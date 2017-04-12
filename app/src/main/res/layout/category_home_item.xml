@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    card_view:cardUseCompatPadding="true"
+    card_view:cardCornerRadius="@dimen/category_home_item_radius"
+    android:layout_marginRight="@dimen/margin5"
+    android:background="@color/colorGray">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="170dp"
+        android:layout_height="match_parent"
+        android:padding="3dp"
+        android:background="@color/colorGray">
+
+        <ImageView
+            android:id="@+id/item_image"
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:scaleType="fitXY"/>
+
+        <TextView
+        android:id="@+id/item_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hangover Hangiver HangOver Hangover"
+        android:textSize="@dimen/text12"
+        android:textColor="@color/colorCarbonBlack"
+        android:textStyle="bold"
+            android:maxLines="2"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:maxLength="45"
+       />
+        <TextView
+            android:id="@+id/item_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dummy_text_short_description"
+            android:textSize="@dimen/text10"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:textColor="@color/colordarkGrey"
+            android:maxLines="4"
+
+      />
+    </LinearLayout>
+    </android.support.v7.widget.CardView>
