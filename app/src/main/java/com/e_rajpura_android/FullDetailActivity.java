@@ -1,30 +1,24 @@
-package com.e_rajpura_android;
+package com.erajpura;
 
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -37,12 +31,12 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
-import com.e_rajpura_android.Model.ShopDetail;
-import com.e_rajpura_android.Model.TopCategoryAndShops;
-import com.e_rajpura_android.adapter.OffersAdapter;
-import com.e_rajpura_android.common.AppController;
-import com.e_rajpura_android.common.Global;
-import com.e_rajpura_android.common.Utils;
+import com.bumptech.glide.Glide;
+import com.erajpura.Model.ShopDetail;
+import com.erajpura.adapter.OffersAdapter;
+import com.erajpura.common.AppController;
+import com.erajpura.common.Global;
+import com.erajpura.common.Utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -58,12 +52,13 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
     TextView text_decription,text_name,text_address,text_info,text_location,text_opening_hours,text_services,text_email,
             text_call,text_call1,text_call2;
     RatingBar ratingBar;
-    RelativeLayout emailLayout,callLayout,callLayout1,callLayout2;
+    LinearLayout emailLayout,callLayout,callLayout1,callLayout2;
     RecyclerView recyclerViewOffers;
     LinearLayoutManager linearLayoutManager;
     List<String> currentOffersList=new ArrayList<>();
     OffersAdapter offersAdapter;
-    LinearLayout offerLayout;
+    LinearLayout offerLayout,detaillayout;
+    ImageView backpress,mainimage;
 
     int shopId;
     ShopDetail shopDetail;
@@ -105,16 +100,21 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
         text_call2=(TextView) findViewById(R.id.call2);
         text_decription=(TextView) findViewById(R.id.description);
         ratingBar=(RatingBar) findViewById(R.id.rating);
+        backpress=(ImageView)findViewById(R.id.detail_backpress);
+        mainimage=(ImageView)findViewById(R.id.detail_imageView);
+        detaillayout=(LinearLayout)findViewById(R.id.detail_layout);
+
 
         text_decription.setMovementMethod(new ScrollingMovementMethod()); // To make decription text scrollable
 
-        emailLayout=(RelativeLayout) findViewById(R.id.email_layout);
-        callLayout=(RelativeLayout) findViewById(R.id.call_layout);
-        callLayout1=(RelativeLayout) findViewById(R.id.call1_layout);
-        callLayout2=(RelativeLayout) findViewById(R.id.call2_layout);
+        emailLayout=(LinearLayout) findViewById(R.id.email_layout);
+        callLayout=(LinearLayout) findViewById(R.id.call_layout);
+        callLayout1=(LinearLayout) findViewById(R.id.call1_layout);
+        callLayout2=(LinearLayout) findViewById(R.id.call2_layout);
 
         emailLayout.setOnClickListener(this);
         callLayout.setOnClickListener(this);
+        backpress.setOnClickListener(this);
         callLayout1.setOnClickListener(this);
         callLayout2.setOnClickListener(this);
 
@@ -137,20 +137,24 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
         gson = gsonBuilder.create();
     }
     private void setData(){
-    text_name.setText(shopDetail.getShop_name());
-        text_address.setText(shopDetail.getShop_address()+shopDetail.getShop_city_name());
-        text_location.setText(shopDetail.getShop_address());
+
+        ratingBar.setRating(shopDetail.getShop_rating());
+
+        text_name.setText(shopDetail.getShop_name());
+        text_location.setText(shopDetail.getShop_address()+" ("+shopDetail.getShop_city_name()+")");
+        //text_location.setText(shopDetail.getShop_address());
         text_opening_hours.setText(shopDetail.getShop_timing());
 
         text_decription.setText(shopDetail.getShop_description());
-        text_call.setText(shopDetail.getShop_contact_1());
 
+        Glide.with(this).load(shopDetail.getShop_image()).into(mainimage);
 
         String serrvicestext="";
-        for(int i=0;i<shopDetail.getShop_services_name_array().size();i++){
+        if(shopDetail.getShop_services_name_array()!=null){
+            for(int i=0;i<shopDetail.getShop_services_name_array().size();i++){
             serrvicestext=serrvicestext.concat("✓ "+shopDetail.getShop_services_name_array().get(i)).concat("\n");
         }
-
+        }
         text_services.setText(serrvicestext);
 
         if(!shopDetail.getShop_email().equals("")){
@@ -197,7 +201,6 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
         DrawableCompat.setTint(DrawableCompat.wrap(stars.getDrawable(2)),
                 ContextCompat.getColor(getApplicationContext(),
                         R.color.colorRating));
-        ratingBar.setRating(shopDetail.getShop_rating());
     }
 
     @Override
@@ -208,7 +211,22 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
                 dialog(true,text_email.getText().toString());
                 break;
             case R.id.call_layout:
-                dialog(false,text_call.getText().toString());
+                if(text_call1.getText().toString().length()>0){
+                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    String temp = "tel:"+text_call1.getText().toString();
+                    intent.setData(Uri.parse(temp));
+                    startActivity(intent);
+                }
+                else if(text_call2.getText().toString().length()>0){
+                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    String temp = "tel:"+text_call2.getText().toString();
+                    intent.setData(Uri.parse(temp));
+                    startActivity(intent);
+                    dialog(false,text_call2.getText().toString());
+                }
+                else{
+                    callLayout.setVisibility(View.INVISIBLE);
+                }
                 break;
             case R.id.call1_layout:
                 dialog(false,text_call1.getText().toString());
@@ -216,22 +234,28 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
             case R.id.call2_layout:
                 dialog(false,text_call2.getText().toString());
                 break;
+            case R.id.detail_backpress:
+                onBackPressed();
+                break;
         }
     }
     public void getShopDetails() {
 
         try {
+
             final ProgressDialog pDialog = new ProgressDialog(FullDetailActivity.this);
             pDialog.setMessage("Loading...");
             pDialog.setCancelable(false);
             pDialog.show();
 
+            detaillayout.setVisibility(View.INVISIBLE);
             String LOGIN_URL= Global.BASE_URL + Global.API_SHOP_BY_SHOPID;
             StringRequest sr = new StringRequest(Request.Method.POST, LOGIN_URL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
+                    detaillayout.setVisibility(View.VISIBLE);
                     pDialog.dismiss();
-
+                    Log.e("shop_id",response);
                     try{
                         JSONObject obj=new JSONObject(response);
                         if(obj.getInt("code")==1){
@@ -266,6 +290,7 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
                     return params;
                 }
             };
+
             AppController.getInstance().addToRequestQueue(sr);
 
         } catch (Exception e) {
@@ -302,7 +327,7 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
         }
         else
         {
-            txtCancel.setText(detail);
+            txtMobile.setText(detail);
             txtContact.setText("Call Us");
             txtEmail.setVisibility(View.GONE);
             txtMobile.setOnClickListener(new View.OnClickListener() {
@@ -327,14 +352,4 @@ public class FullDetailActivity extends AppCompatActivity implements View.OnClic
 
         dialog.show();
     }
-
-   /* public void addOfferList()
-    {
-        for(int i=1;i<=4;i++)
-        {
-            currentOffersList.add("Get "+i+"0 % off only on apps");
-        }
-        offersAdapter.addTopSearchArrayList(currentOffersList);
-        offersAdapter.notifyDataSetChanged();
-    }*/
 }

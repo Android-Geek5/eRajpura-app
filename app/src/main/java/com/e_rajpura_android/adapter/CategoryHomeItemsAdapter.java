@@ -1,6 +1,7 @@
-package com.e_rajpura_android.adapter;
+package com.erajpura.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,9 +9,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.e_rajpura_android.Model.Category;
-import com.e_rajpura_android.Model.CategoryHomeItem;
-import com.e_rajpura_android.R;
+import com.bumptech.glide.Glide;
+import com.erajpura.FullDetailActivity;
+import com.erajpura.Model.ShopShortDetail;
+import com.erajpura.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +22,11 @@ import java.util.List;
  */
 
 public class CategoryHomeItemsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
-    List<CategoryHomeItem> categoryHomeItemsList=new ArrayList<>();
+    List<ShopShortDetail> categoryHomeItemsList=new ArrayList<>();
     Context context;
 
 
-    public CategoryHomeItemsAdapter(Context context,List<CategoryHomeItem> categoryHomeItemsList)
+    public CategoryHomeItemsAdapter(Context context,List<ShopShortDetail> categoryHomeItemsList)
     {
         this.context=context;
         this.categoryHomeItemsList=categoryHomeItemsList;
@@ -40,10 +42,19 @@ public class CategoryHomeItemsAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-           CategoryHomeItem categoryHomeItem=categoryHomeItemsList.get(position);
-            ((CategoryHomeItemsViewHolder) holder).item_name.setText(categoryHomeItem.getName());
-            //cast holder to VHItem and set data
+       final ShopShortDetail categoryHomeItem=categoryHomeItemsList.get(position);
+            ((CategoryHomeItemsViewHolder) holder).item_name.setText(categoryHomeItem.getShop_name());
+        ((CategoryHomeItemsViewHolder) holder).text_description.setText(categoryHomeItem.getShop_description());
+        Glide.with(context).load(categoryHomeItem.getShop_image()).into(((CategoryHomeItemsViewHolder) holder).image_item);
 
+        ((CategoryHomeItemsViewHolder) holder).itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(context, FullDetailActivity.class);
+                intent.putExtra("shopId",categoryHomeItem.getShop_id());
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -52,7 +63,7 @@ public class CategoryHomeItemsAdapter extends RecyclerView.Adapter<RecyclerView.
     }
 
 
-    public void addCategoryHomeItemArrayList(List<CategoryHomeItem> categoryHomeItemsList)
+    public void addCategoryHomeItemArrayList(List<ShopShortDetail> categoryHomeItemsList)
     {
         this.categoryHomeItemsList=categoryHomeItemsList;
     }

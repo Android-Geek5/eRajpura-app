@@ -1,4 +1,4 @@
-package com.e_rajpura_android.common;
+package com.erajpura.common;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -37,4 +37,6 @@ public class Utils  {
     {
         Toast.makeText(context,message,Toast.LENGTH_SHORT).show();
     }
+
+
 }

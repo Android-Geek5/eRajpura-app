@@ -1,10 +1,12 @@
 package com.erajpura;
 
-import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,8 +22,8 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
-import com.erajpura.Model.TopCategoryAndShops;
-import com.erajpura.adapter.CategoryListAdapter;
+import com.erajpura.Model.ShopDetail;
+import com.erajpura.adapter.ShopListAdapter;
 import com.erajpura.common.AppController;
 import com.erajpura.common.Global;
 import com.erajpura.common.GridSpacesItemDecoration;
@@ -30,36 +32,32 @@ import com.google.gson.GsonBuilder;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CategoryListActivity extends AppCompatActivity {
-
+public class SearchActivity extends AppCompatActivity {
     TextView toolBarTitle;
     LinearLayout backButton;
 
+
     RecyclerView recyclerViewCategory;
     GridLayoutManager gridLayoutManager;
-    CategoryListAdapter categoryListAdapter;
-    SwipeRefreshLayout swipe;
+    ShopListAdapter shopListAdapter;
 
+    String searchString;
+    SwipeRefreshLayout swipe;
     GsonBuilder gsonBuilder;
     private Gson gson;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_category_list);
-
+        setContentView(R.layout.activity_search);
         inflateToolbar();
         inflateLayout();
-        getCategoryList();;
-
-
     }
-
     public void inflateToolbar()
     {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -68,7 +66,7 @@ public class CategoryListActivity extends AppCompatActivity {
 
 
         setSupportActionBar(toolbar);
-        toolBarTitle.setText("Category");
+        toolBarTitle.setText("Search");
         backButton.setVisibility(View.VISIBLE);
 
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -77,14 +75,14 @@ public class CategoryListActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+
     }
 
     public void inflateLayout()
     {
-        recyclerViewCategory=(RecyclerView)findViewById(R.id.recyclerViewCategoryList);
-        gridLayoutManager= new GridLayoutManager(CategoryListActivity.this,2);
+        recyclerViewCategory=(RecyclerView)findViewById(R.id.recyclerViewSearch);
         swipe=(SwipeRefreshLayout)findViewById(R.id.swipe);
-        swipe.setEnabled(false);
+        gridLayoutManager= new GridLayoutManager(SearchActivity.this,1);
         int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.margin5);
         recyclerViewCategory.addItemDecoration(new GridSpacesItemDecoration(spacingInPixels,true));
         recyclerViewCategory.setLayoutManager(gridLayoutManager);
@@ -93,36 +91,24 @@ public class CategoryListActivity extends AppCompatActivity {
 
         gson = gsonBuilder.create();
     }
-
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        MenuItem searchViewItem = menu.findItem(R.id.action_search);
-        searchViewItem.setVisible(false);
-        //searchViewItem.setIntent(new Intent(CategoryListActivity.this,SearchActivity.class));
-
-        return true;
-    }
-
     public void getCategoryList() {
 
         try {
             swipe.setRefreshing(true);
 
-            String LOGIN_URL= Global.BASE_URL + Global.API_ALL_CATEGORIES;
+            String LOGIN_URL= Global.BASE_URL + Global.API_SEARCH;
             StringRequest sr = new StringRequest(Request.Method.POST, LOGIN_URL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     swipe.setRefreshing(false);
-
                     try{
                         JSONObject obj=new JSONObject(response);
                         if(obj.getInt("code")==1){
+                            JSONObject obj1=new JSONObject(obj.getString("data"));
 
-                            List<TopCategoryAndShops> shopsList = Arrays.asList(gson.fromJson(obj.getString("data"), TopCategoryAndShops[].class));
-                            categoryListAdapter =new CategoryListAdapter(CategoryListActivity.this,shopsList,null);
-                            recyclerViewCategory.setAdapter(categoryListAdapter);
-
-
+                            List<ShopDetail> shopsList = Arrays.asList(gson.fromJson(obj1.getString("results_array"), ShopDetail[].class));
+                            shopListAdapter =new ShopListAdapter(SearchActivity.this,shopsList,recyclerViewCategory);
+                            recyclerViewCategory.setAdapter(shopListAdapter);
                         }
                     }catch (Exception e){e.printStackTrace();}
                 }
@@ -132,20 +118,18 @@ public class CategoryListActivity extends AppCompatActivity {
                 public void onErrorResponse(VolleyError error) {
                     swipe.setRefreshing(false);
                     if (error instanceof TimeoutError || error instanceof NoConnectionError) {
-                        Toast.makeText(CategoryListActivity.this, "No Internet Connection",
+                        Toast.makeText(SearchActivity.this, "No Internet Connection",
                                 Toast.LENGTH_LONG).show();
                     } else  {
                         VolleyLog.d("", "" + error.getMessage() + "," + error.toString());
-                    }
-                }
+                    }}
             }
             )
-
             {
                 @Override
                 protected Map<String, String> getParams() {
                     Map<String, String> params = new HashMap<String, String>();
-                    params.put("name", "aa");
+                    params.put("search_term", searchString);
                     return params;
                 }
             };
@@ -155,5 +139,55 @@ public class CategoryListActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        MenuItem item=menu.findItem(R.id.action_search);
+        MenuItem item1=menu.findItem(R.id.action_search1);
 
+        SearchView searchView= (SearchView) MenuItemCompat.getActionView(item1);
+        searchView.setIconifiedByDefault(true);
+        searchView.setFocusable(true);
+        searchView.setIconified(true);
+        searchView.requestFocus();
+        MenuItemCompat.expandActionView(item1);
+        item.setVisible(false);
+        item1.setVisible(true);
+
+        MenuItemCompat.setOnActionExpandListener(item1,
+                new MenuItemCompat.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem item) {
+
+                        return true; // KEEP IT TO TRUE OR IT DOESN'T OPEN !!
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem item) {
+                        onBackPressed();
+                        return true; // OR FALSE IF YOU DIDN'T WANT IT TO CLOSE!
+                    }
+                });
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if(newText.length()>0){
+                    searchString=newText;
+                    getCategoryList();
+                }
+                else{
+                    List<ShopDetail> shopsList = new ArrayList<ShopDetail>();
+                    shopListAdapter =new ShopListAdapter(SearchActivity.this,shopsList,recyclerViewCategory);
+                    recyclerViewCategory.setAdapter(shopListAdapter);
+                }
+                return true;
+            }
+        });
+
+        return true;
+    }
 }

@@ -1,4 +1,4 @@
-package com.e_rajpura_android.common;
+package com.erajpura.common;
 
 import android.graphics.Rect;
 import android.support.v7.widget.GridLayoutManager;
